@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import br.com.caelum.restfulie.RestClient;
 import br.com.caelum.restfulie.mediatype.MediaType;
 import br.com.caelum.restfulie.mediatype.annotations.GsonName;
@@ -24,6 +27,8 @@ import com.google.gson.reflect.TypeToken;
  *
  */
 public class GsonMediaType implements MediaType{
+	
+	private static final Logger LOG = LoggerFactory.getLogger(GsonMediaType.class); 
 	
 	private final static Pattern rootTypeDetectionRegex = Pattern.compile( "^\\{[ ]*\"([^\"]*)\"[ ]*:(.*)}$" );
 	
@@ -93,7 +98,7 @@ public class GsonMediaType implements MediaType{
 
 	public <T> void marshal( T payload, Writer writer, RestClient client ) throws IOException {
 		String json = this.gson.toJson( payload );
-		System.out.println( "Marshalled object:" + json );
+		LOG.debug("Marshalled object: {}",json);
 		writer.append( json );
 	}
 
