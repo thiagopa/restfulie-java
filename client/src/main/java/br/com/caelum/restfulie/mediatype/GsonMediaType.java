@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,10 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import br.com.caelum.restfulie.RestClient;
-import br.com.caelum.restfulie.mediatype.MediaType;
+import br.com.caelum.restfulie.gson.converters.DateTypeAdapter;
 import br.com.caelum.restfulie.mediatype.annotations.GsonName;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
 /**
@@ -38,11 +40,21 @@ public class GsonMediaType implements MediaType{
 	private Map<String,Type> collections = new HashMap<String, Type>();
 
 	private Gson gson;
-	
+	private Class<?> rootClass;
+
 	public GsonMediaType() {
-		this.gson = new Gson();
+		GsonBuilder gsonBuilder = new GsonBuilder();
+
+		// adicionar tupo de conversão de data
+		gsonBuilder.registerTypeAdapter(Date.class, new DateTypeAdapter());
+		
+		this.gson = gsonBuilder.create();
 	}
-	
+
+	public void withRootClass(Class<?> rootClass) {
+		this.rootClass = rootClass;
+	}
+
 	/**
 	 * Register a class which should be used for unmarshalling.
 	 * <br>
@@ -108,7 +120,9 @@ public class GsonMediaType implements MediaType{
 		
 		Class<T> rootClass = detectRootClass( jsonData );
 		if( rootClass != null ){ //we know wich class should be used
+			
 			return  this.gson.fromJson( jsonData.json , rootClass );
+			
 		}else{//detection failed, will try to detect as top level array (alias for collection)
 			Type rootType = detectRootType( jsonData );
 			
@@ -129,6 +143,11 @@ public class GsonMediaType implements MediaType{
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> Class<T> detectRootClass( JsonData jsonData ){
+		
+		if(rootClass!=null) {
+			return (Class<T>) rootClass;
+		}
+		
 		Matcher matcher = rootTypeDetectionRegex.matcher( jsonData.json );
 		if( matcher.matches() ){
 			String alias = matcher.group(1);
