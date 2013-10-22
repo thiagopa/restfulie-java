@@ -3,7 +3,7 @@
 	<groupId>br.com.caelum</groupId>
 	<artifactId>restfulie</artifactId>
 	<packaging>jar</packaging>
-	<version>1.0.1-SNAPSHOT</version>
+	<version>1.0.1-gson</version>
 	<name>restfulie-java-client</name>
 	<url>http://restfulie.caelum.com.br</url>
 
@@ -20,6 +20,14 @@
 	</scm>
 
 	<dependencies>
+
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.1</version>
+		</dependency>
+
+
 		<dependency>
 			<groupId>javassist</groupId>
 			<artifactId>javassist</artifactId>

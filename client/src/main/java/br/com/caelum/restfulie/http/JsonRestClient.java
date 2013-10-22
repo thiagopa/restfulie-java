@@ -100,7 +100,6 @@ public class JsonRestClient implements RestClient{
 		return this;
 	}
 
-	@Override
 	public ExecutorService getThreads() {
 		return threads;
 	}

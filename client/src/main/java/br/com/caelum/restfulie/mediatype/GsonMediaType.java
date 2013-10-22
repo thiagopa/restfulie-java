@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import br.com.caelum.restfulie.RestClient;
 import br.com.caelum.restfulie.mediatype.MediaType;
+import br.com.caelum.restfulie.mediatype.annotations.GsonName;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -47,8 +48,14 @@ public class GsonMediaType implements MediaType{
 	 * @return This instance
 	 */
 	public GsonMediaType withType( Class<?> javaType ){
-		String correctAlias = javaType.getSimpleName();
-		correctAlias = correctAlias.substring( 0 , 1 ).toLowerCase() + correctAlias.substring( 1 );
+		String correctAlias = null;
+		if(javaType.isAnnotationPresent(GsonName.class)) {
+			GsonName gsonName = javaType.getAnnotation(GsonName.class);
+			correctAlias = gsonName.value();
+		} else {
+			correctAlias = javaType.getSimpleName();
+			correctAlias = correctAlias.substring( 0 , 1 ).toLowerCase() + correctAlias.substring( 1 );
+		}
 		return this.withType( correctAlias , javaType );
 	}
 
@@ -80,19 +87,16 @@ public class GsonMediaType implements MediaType{
 		return this;		
 	}
 	
-	@Override
 	public boolean answersTo( String type ) {
 		return types.contains( type );
 	}
 
-	@Override
 	public <T> void marshal( T payload, Writer writer, RestClient client ) throws IOException {
 		String json = this.gson.toJson( payload );
 		System.out.println( "Marshalled object:" + json );
 		writer.append( json );
 	}
 
-	@Override
 	public <T> T unmarshal( String content, RestClient client ) {
 		JsonData jsonData = new JsonData();
 		jsonData.json = content;
